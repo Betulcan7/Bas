@@ -16,9 +16,9 @@ class Klant extends Database{
 
 	// Methods
 
-	public function toevoegenKlant($_POST) {
+//	public function toevoegenKlant($_POST) {
 		
-	}
+//	}
 	
 	/**
 	 * Summary of crudKlant
