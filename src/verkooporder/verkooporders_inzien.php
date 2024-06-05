@@ -11,15 +11,16 @@
     
     <?php
     require '../../vendor/autoload.php';
+
     use Bas\classes\Verkooporder;
 
-    // Maak een Verkooporders object
+    // Maak een Verkooporder object
     $verkooporder = new Verkooporder();
 
     // Toon de tabel
     $verkooporder->showTable();
     ?>
+    
+    <a href="verkooporder_toevoegen.php">Nieuwe Verkooporder Toevoegen</a>
 </body>
 </html>
-
-

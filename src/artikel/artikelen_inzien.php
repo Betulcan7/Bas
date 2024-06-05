@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verkooporders Inzien</title>
+    <title>Artikelen Inzien</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <h1>Verkooporders Inzien</h1>
+    <h1>Artikelen Inzien</h1>
     
     <?php
     require '../../vendor/autoload.php';
-    use Bas\classes\Verkooporder;
+    use Bas\classes\Artikel;
 
-    // Maak een Verkooporders object
-    $verkooporder = new Verkooporder();
+    // Maak een Artikel object
+    $artikel = new Artikel();
 
     // Toon de tabel
-    $verkooporder->showTable();
+    $artikel->showTable();
     ?>
 </body>
 </html>
-
-
