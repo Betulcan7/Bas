@@ -47,5 +47,16 @@ class Verkooporder {
 
         echo "</table>";
     }
+
+    public function insertVerkooporder($verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus) {
+        $sql = "INSERT INTO verkooporder (verkOrdDatum, verkOrdBestAantal, verkOrdStatus)
+                VALUES (?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('sss', $verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus);
+        
+        if (!$stmt->execute()) {
+            throw new \Exception("Kon verkooporder niet invoegen: " . $stmt->error);
+        }
+    }
 }
 ?>

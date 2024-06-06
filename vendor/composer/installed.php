@@ -3,7 +3,7 @@
         'name' => 'betul/bas',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '7a640cca4929856daa0c60e553bf331851f58372',
+        'reference' => '75f001b9b803af31842cdaadab50d40f2c4b7bae',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'betul/bas' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '7a640cca4929856daa0c60e553bf331851f58372',
+            'reference' => '75f001b9b803af31842cdaadab50d40f2c4b7bae',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
