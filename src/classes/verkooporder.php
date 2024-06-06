@@ -48,11 +48,26 @@ class Verkooporder {
         echo "</table>";
     }
 
-    public function insertVerkooporder($verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus) {
-        $sql = "INSERT INTO verkooporder (verkOrdDatum, verkOrdBestAantal, verkOrdStatus)
-                VALUES (?, ?, ?)";
+    public function insertVerkooporder($verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus, $artOmschrijving) {
+        // Voer een query uit om het artId op te halen op basis van artOmschrijving
+        $sql = "SELECT artId FROM Artikel WHERE artOmschrijving = ?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param('sss', $verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus);
+        $stmt->bind_param('s', $artOmschrijving);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $artikel = $result->fetch_assoc();
+        
+        if (!$artikel) {
+            throw new \Exception("Artikel met omschrijving $artOmschrijving niet gevonden.");
+        }
+        
+        $artId = $artikel['artId'];
+        
+        // Voeg de verkooporder in met het verkregen artId
+        $sql = "INSERT INTO verkooporder (verkOrdDatum, verkOrdBestAantal, verkOrdStatus, artId)
+                VALUES (?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('sssi', $verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus, $artId);
         
         if (!$stmt->execute()) {
             throw new \Exception("Kon verkooporder niet invoegen: " . $stmt->error);

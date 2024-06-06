@@ -8,10 +8,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $verkOrdDatum = $_POST['verkOrdDatum'];
     $verkOrdBestAantal = $_POST['verkOrdBestAantal'];
     $verkOrdStatus = $_POST['verkOrdStatus'];
+    $artOmschrijving = $_POST['artOmschrijving'];
 
     $verkooporder = new Verkooporder();
     try {
-        $verkooporder->insertVerkooporder($verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus);
+        $verkooporder->insertVerkooporder($verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus, $artOmschrijving);
         echo "Verkooporder succesvol toegevoegd!";
     } catch (Exception $e) {
         echo "Fout: " . $e->getMessage();
@@ -36,10 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <label for="verkOrdStatus">Status:</label>
         <input type="text" id="verkOrdStatus" name="verkOrdStatus" required><br>
         
+        <label for="artOmschrijving">Artikel Omschrijving:</label>
+        <input type="text" id="artOmschrijving" name="artOmschrijving" required><br>
+        
         <input type="submit" value="Verkooporder Toevoegen">
     </form>
     <br>
     <a href="verkooporders.php">Terug naar Verkooporders</a>
 </body>
 </html>
-
