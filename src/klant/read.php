@@ -1,6 +1,6 @@
 <!--
-	Auteur: Studentnaam
-	Function: home page CRUD Klant
+    Auteur: Studentnaam
+    Function: home page CRUD Klant
 -->
 <!DOCTYPE html>
 <html lang="nl">
@@ -10,16 +10,14 @@
     <title>Crud</title>
     <link rel="stylesheet" href="../style.css">
 </head>
-
 <body>
-	<h1>CRUD Klant</h1>
-	<nav>
-		<a href='../index.html'>Home</a><br>
-		<a href='insert.php'>Toevoegen nieuwe klant</a><br><br>
-	</nav>
-	
+    <h1>CRUD Klant</h1>
+    <nav>
+        <a href='../index.html'>Home</a><br>
+        <a href='insert.php'>Toevoegen nieuwe klant</a><br><br>
+    </nav>
+    
 <?php
-
 // Autoloader classes via composer
 require '../../vendor/autoload.php';
 

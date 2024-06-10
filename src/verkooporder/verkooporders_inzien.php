@@ -9,6 +9,13 @@
 <body>
     <h1>Verkooporders Inzien</h1>
     
+    <form method="get" action="verkooporders_zoeken.php">
+        <label for="klantId">Zoek op Klant ID:</label>
+        <input type="text" id="klantId" name="klantId" required>
+        <input type="submit" value="Zoeken">
+    </form>
+    <br>
+    
     <?php
     require '../../vendor/autoload.php';
 
@@ -20,7 +27,8 @@
     // Toon de tabel
     $verkooporder->showTable();
     ?>
-    
+    <br>
     <a href="verkooporder_toevoegen.php">Nieuwe Verkooporder Toevoegen</a>
 </body>
 </html>
+

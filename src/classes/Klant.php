@@ -3,16 +3,15 @@
 // functie: definitie class Klant
 namespace Bas\classes;
 
-use Bas\classes\Database;
 use PDO;
-
-include_once "functions.php";
 
 class Klant extends Database {
     public $klantId;
-    public $klantemail = null;
-    public $klantnaam;
-    public $klantwoonplaats;
+    public $klantEmail = null;
+    public $klantNaam;
+    public $klantAdres;
+    public $klantPostcode;
+    public $klantWoonplaats;
     private $table_name = "Klant";
 
     // Methods
@@ -22,7 +21,7 @@ class Klant extends Database {
      * @return void
      */
     public function crudKlant() : void {
-        // Haal alle klant op uit de database mbv de method getKlant()
+        // Haal alle klanten op uit de database mbv de method getKlanten()
         $lijst = $this->getKlanten();
 
         // Print een HTML tabel van de lijst    
@@ -30,19 +29,14 @@ class Klant extends Database {
     }
 
     /**
-     * Summary of getKlant
+     * Summary of getKlanten
      * @return mixed
      */
     public function getKlanten() : array {
-        // testdata
-        $lijst = [
-            ['klantId' => 1, 'klantEmail' => 'test1@example.com', 'klantNaam' => 'Test 1', 'klantWoonplaats' => 'City 1'],
-            ['klantId' => 2, 'klantEmail' => 'test2@example.com', 'klantNaam' => 'Test 2', 'klantWoonplaats' => 'City 2']
-            // Add more expected data as needed
-        ];
-
         // Doe een query: dit is een prepare en execute in 1 zonder placeholders
-        // $lijst = $conn->query("select invullen")->fetchAll();
+        $sql = "SELECT klantId, klantEmail, klantNaam, klantAdres, klantPostcode, klantWoonplaats FROM " . $this->table_name;
+        $stmt = self::$conn->query($sql);
+        $lijst = $stmt->fetchAll();
 
         return $lijst;
     }
@@ -53,19 +47,16 @@ class Klant extends Database {
      * @return mixed
      */
     public function getKlant(int $klantId) : array {
-
         // Doe een fetch op $klantId
+        $sql = "SELECT klantId, klantEmail, klantNaam, klantAdres, klantPostcode, klantWoonplaats FROM " . $this->table_name . " WHERE klantId = :klantId";
+        $stmt = self::$conn->prepare($sql);
+        $stmt->execute(['klantId' => $klantId]);
+        $klant = $stmt->fetch();
 
-        // testdata
-        $lijst = 
-            ['klantId' => 1, 'klantEmail' => 'test1@example.com', 'klantNaam' => 'Test 1', 'klantWoonplaats' => 'City 1']
-        ;
-
-        return $lijst;
+        return $klant;
     }
 
     public function dropDownKlant($row_selected = -1){
-
         // Haal alle klanten op uit de database mbv de method getKlanten()
         $lijst = $this->getKlanten();
 
@@ -73,9 +64,9 @@ class Klant extends Database {
         echo "<select name='klantId'>";
         foreach ($lijst as $row){
             if($row_selected == $row["klantId"]){
-                echo "<option value='$row[klantId]' selected='selected'> $row[klantnaam] $row[klantemail]</option>\n";
+                echo "<option value='$row[klantId]' selected='selected'> $row[klantNaam] $row[klantEmail]</option>\n";
             } else {
-                echo "<option value='$row[klantId]'> $row[klantnaam] $row[klantemail]</option>\n";
+                echo "<option value='$row[klantId]'> $row[klantNaam] $row[klantEmail]</option>\n";
             }
         }
         echo "</select>";
@@ -87,31 +78,40 @@ class Klant extends Database {
      * @return void
      */
     public function showTable($lijst) : void {
-
         $txt = "<table>";
 
         // Voeg de kolomnamen boven de tabel
-        $txt .= getTableHeader($lijst[0]);
+        if (!empty($lijst)) {
+            $txt .= "<tr>";
+            foreach (array_keys($lijst[0]) as $colname) {
+                if ($colname != 'klantId') {
+                    $txt .= "<th>" . htmlspecialchars($colname) . "</th>";
+                }
+            }
+            $txt .= "<th>Actions</th>";
+            $txt .= "</tr>";
+        }
 
         foreach($lijst as $row){
             $txt .= "<tr>";
-            $txt .=  "<td>" . $row["klantId"] . "</td>";
-            $txt .=  "<td>" . $row["klantNaam"] . "</td>";
-            $txt .=  "<td>" . $row["klantEmail"] . "</td>";
-            $txt .=  "<td>" . $row["klantWoonplaats"] . "</td>";
-            
+            foreach($row as $colname => $colvalue) {
+                if ($colname != 'klantId') {
+                    $txt .= "<td>" . htmlspecialchars($colvalue) . "</td>";
+                }
+            }
+
             //Update
             // Wijzig knopje
             $txt .=  "<td>";
             $txt .= " 
-            <form method='post' action='update.php?klantId=$row[klantId]' >       
+            <form method='post' action='update.php?klantId={$row['klantId']}' >       
                 <button name='update'>Wzg</button>     
             </form> </td>";
 
             //Delete
             $txt .=  "<td>";
             $txt .= " 
-            <form method='post' action='delete.php?klantId=$row[klantId]' >       
+            <form method='post' action='delete.php?klantId={$row['klantId']}' >       
                 <button name='verwijderen'>Verwijderen</button>     
             </form> </td>";    
             $txt .= "</tr>";
@@ -127,23 +127,29 @@ class Klant extends Database {
      * @return bool
      */
     public function deleteKlant(int $klantId) : bool {
-
-        return true;
-
+        $sql = "DELETE FROM " . $this->table_name . " WHERE klantId = :klantId";
+        $stmt = self::$conn->prepare($sql);
+        return $stmt->execute(['klantId' => $klantId]);
     }
 
     public function updateKlant($row) : bool{
-
-        return true;
+        $sql = "UPDATE " . $this->table_name . " SET klantNaam = :klantNaam, klantEmail = :klantEmail, klantAdres = :klantAdres, klantPostcode = :klantPostcode, klantWoonplaats = :klantWoonplaats WHERE klantId = :klantId";
+        $stmt = self::$conn->prepare($sql);
+        return $stmt->execute([
+            'klantNaam' => $row['klantNaam'],
+            'klantEmail' => $row['klantEmail'],
+            'klantAdres' => $row['klantAdres'],
+            'klantPostcode' => $row['klantPostcode'],
+            'klantWoonplaats' => $row['klantWoonplaats'],
+            'klantId' => $row['klantId']
+        ]);
     }
-
 
     /**
      * Summary of BepMaxKlantId
      * @return int
      */
     private function BepMaxKlantId() : int {
-
         // Bepaal uniek nummer
         $sql="SELECT MAX(klantId)+1 FROM $this->table_name";
         return  (int) self::$conn->query($sql)->fetchColumn();
@@ -155,7 +161,6 @@ class Klant extends Database {
      * @return mixed
      */
     public function insertKlant($row){
-
         // Bepaal een unieke klantId
         $klantId = $this->BepMaxKlantId();
 

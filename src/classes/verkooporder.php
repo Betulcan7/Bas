@@ -14,7 +14,9 @@ class Verkooporder {
     }
 
     public function getVerkooporder() {
-        $sql = "SELECT verkOrdDatum, verkOrdBestAantal, verkOrdStatus FROM " . $this->table_name;
+        $sql = "SELECT verkOrdDatum, verkOrdBestAantal, verkOrdStatus, Artikel.artOmschrijving 
+                FROM " . $this->table_name . " 
+                JOIN Artikel ON " . $this->table_name . ".artId = Artikel.artId";
         $result = $this->conn->query($sql);
 
         $orders = [];
@@ -35,43 +37,78 @@ class Verkooporder {
         }
 
         echo "<table border='1'>";
-        echo "<tr><th>Datum</th><th>Bestelde Aantal</th><th>Status</th></tr>";
+        echo "<tr><th>Datum</th><th>Bestelde Aantal</th><th>Status</th><th>Artikel Omschrijving</th></tr>";
 
         foreach ($orders as $order) {
             echo "<tr>";
-            echo "<td>" . $order['verkOrdDatum'] . "</td>";
-            echo "<td>" . $order['verkOrdBestAantal'] . "</td>";
-            echo "<td>" . $order['verkOrdStatus'] . "</td>";
+            echo "<td>" . htmlspecialchars($order['verkOrdDatum']) . "</td>";
+            echo "<td>" . htmlspecialchars($order['verkOrdBestAantal']) . "</td>";
+            echo "<td>" . htmlspecialchars($order['verkOrdStatus']) . "</td>";
+            echo "<td>" . htmlspecialchars($order['artOmschrijving']) . "</td>";
             echo "</tr>";
         }
 
         echo "</table>";
     }
 
-    public function insertVerkooporder($verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus, $artOmschrijving) {
-        // Voer een query uit om het artId op te halen op basis van artOmschrijving
+    public function getVerkoopordersByKlantId($klantId) {
+        $sql = "SELECT verkOrdDatum, verkOrdBestAantal, verkOrdStatus, Artikel.artOmschrijving 
+                FROM " . $this->table_name . " 
+                JOIN Artikel ON " . $this->table_name . ".artId = Artikel.artId
+                WHERE klantId = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $klantId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $orders = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $orders[] = $row;
+            }
+        }
+        return $orders;
+    }
+
+    public function insertVerkooporder($datum, $bestAantal, $status, $artOmschrijving, $klantNaam) {
+        // Haal het artikel ID op basis van de artikelomschrijving
         $sql = "SELECT artId FROM Artikel WHERE artOmschrijving = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param('s', $artOmschrijving);
         $stmt->execute();
         $result = $stmt->get_result();
-        $artikel = $result->fetch_assoc();
-        
-        if (!$artikel) {
-            throw new \Exception("Artikel met omschrijving $artOmschrijving niet gevonden.");
+
+        if ($result->num_rows == 0) {
+            throw new \Exception("Artikel niet gevonden: " . htmlspecialchars($artOmschrijving));
         }
-        
-        $artId = $artikel['artId'];
-        
-        // Voeg de verkooporder in met het verkregen artId
-        $sql = "INSERT INTO verkooporder (verkOrdDatum, verkOrdBestAantal, verkOrdStatus, artId)
-                VALUES (?, ?, ?, ?)";
+
+        $row = $result->fetch_assoc();
+        $artId = $row['artId'];
+
+        // Haal het klant ID op basis van de klantnaam
+        $sql = "SELECT klantId FROM Klant WHERE klantNaam = ?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param('sssi', $verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus, $artId);
-        
-        if (!$stmt->execute()) {
-            throw new \Exception("Kon verkooporder niet invoegen: " . $stmt->error);
+        $stmt->bind_param('s', $klantNaam);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows == 0) {
+            throw new \Exception("Klant niet gevonden: " . htmlspecialchars($klantNaam));
         }
+
+        $row = $result->fetch_assoc();
+        $klantId = $row['klantId'];
+
+        // Insert de nieuwe verkooporder
+        $sql = "INSERT INTO " . $this->table_name . " (verkOrdDatum, verkOrdBestAantal, verkOrdStatus, artId, klantId) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('sssii', $datum, $bestAantal, $status, $artId, $klantId);
+
+        if (!$stmt->execute()) {
+            throw new \Exception("Fout bij het invoegen van verkooporder: " . $stmt->error);
+        }
+
+        return true;
     }
 }
 ?>
