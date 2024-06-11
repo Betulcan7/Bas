@@ -14,11 +14,11 @@ class Verkooporder {
     }
 
     public function getVerkooporder() {
-        $sql = "SELECT verkOrdDatum, verkOrdBestAantal, verkOrdStatus, Artikel.artOmschrijving 
+        $sql = "SELECT verkOrdId, verkOrdDatum, verkOrdBestAantal, verkOrdStatus, Artikel.artOmschrijving 
                 FROM " . $this->table_name . " 
                 JOIN Artikel ON " . $this->table_name . ".artId = Artikel.artId";
         $result = $this->conn->query($sql);
-
+    
         $orders = [];
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
@@ -27,29 +27,32 @@ class Verkooporder {
         }
         return $orders;
     }
+    
 
     public function showTable() {
         $orders = $this->getVerkooporder();
-
+    
         if (empty($orders)) {
             echo "Geen verkooporders gevonden.";
             return;
         }
-
+    
         echo "<table border='1'>";
-        echo "<tr><th>Datum</th><th>Bestelde Aantal</th><th>Status</th><th>Artikel Omschrijving</th></tr>";
-
+        echo "<tr><th>Datum</th><th>Bestelde Aantal</th><th>Status</th><th>Artikel Omschrijving</th><th>Actie</th></tr>";
+    
         foreach ($orders as $order) {
             echo "<tr>";
             echo "<td>" . htmlspecialchars($order['verkOrdDatum']) . "</td>";
             echo "<td>" . htmlspecialchars($order['verkOrdBestAantal']) . "</td>";
             echo "<td>" . htmlspecialchars($order['verkOrdStatus']) . "</td>";
             echo "<td>" . htmlspecialchars($order['artOmschrijving']) . "</td>";
+            echo "<td><a href='delete.php?verkOrdId=" . $order['verkOrdId'] . "'>Verwijderen</a></td>";
             echo "</tr>";
         }
-
+    
         echo "</table>";
     }
+    
 
     public function getVerkoopordersByKlantId($klantId) {
         $sql = "SELECT verkOrdDatum, verkOrdBestAantal, verkOrdStatus, Artikel.artOmschrijving 
@@ -82,6 +85,8 @@ class Verkooporder {
             throw new \Exception("Artikel niet gevonden: " . htmlspecialchars($artOmschrijving));
         }
 
+        
+
         $row = $result->fetch_assoc();
         $artId = $row['artId'];
 
@@ -110,5 +115,27 @@ class Verkooporder {
 
         return true;
     }
+    
+    public function deleteVerkooporder($verkOrdId) {
+        // Voorbereid de SQL query om de verkooporder te verwijderen op basis van het verkOrdId
+        $sql = "DELETE FROM " . $this->table_name . " WHERE verkOrdId = ?";
+        
+        // Bereid de SQL statement voor
+        $stmt = $this->conn->prepare($sql);
+        
+        // Bind de parameter verkOrdId aan de SQL statement
+        $stmt->bind_param('i', $verkOrdId);
+        
+        // Voer de SQL statement uit
+        if ($stmt->execute()) {
+            // Return true als de verkooporder succesvol is verwijderd
+            return true;
+        } else {
+            // Return false als er een fout optreedt bij het verwijderen van de verkooporder
+            return false;
+        }
+    }
+    
+    
 }
 ?>
