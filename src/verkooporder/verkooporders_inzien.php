@@ -26,8 +26,6 @@
 
     // Toon de tabel
     $verkooporder->showTable();
-
-    
     ?>
     <br>
     <a href="verkooporder_toevoegen.php">Nieuwe Verkooporder Toevoegen</a>
