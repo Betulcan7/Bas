@@ -55,13 +55,14 @@ class Verkooporder {
         echo "</table>";
     }
 
-    public function getVerkoopordersByKlantId($klantId) {
-        $sql = "SELECT verkOrdDatum, verkOrdBestAantal, verkOrdStatus, Artikel.artOmschrijving 
+    public function getVerkoopordersByKlantNaam($klantNaam) {
+        $sql = "SELECT verkOrdId, verkOrdDatum, verkOrdBestAantal, verkOrdStatus, Artikel.artOmschrijving 
                 FROM " . $this->table_name . " 
                 JOIN Artikel ON " . $this->table_name . ".artId = Artikel.artId
-                WHERE klantId = ?";
+                JOIN Klant ON " . $this->table_name . ".klantId = Klant.klantId
+                WHERE Klant.klantNaam = ?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param('i', $klantId);
+        $stmt->bind_param('s', $klantNaam);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -129,15 +130,14 @@ class Verkooporder {
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             return $row['verkOrdStatus'];
-        } else {
-            throw new \Exception("Verkooporder niet gevonden: " . htmlspecialchars($verkOrdId));
         }
+        return null;
     }
 
-    public function updateOrderStatus($verkOrdId, $newStatus) {
+    public function updateOrderStatus($verkOrdId, $status) {
         $sql = "UPDATE " . $this->table_name . " SET verkOrdStatus = ? WHERE verkOrdId = ?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param('si', $newStatus, $verkOrdId);
+        $stmt->bind_param('si', $status, $verkOrdId);
         return $stmt->execute();
     }
 }

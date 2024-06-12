@@ -10,8 +10,8 @@
     <h1>Verkooporders Inzien</h1>
     
     <form method="get" action="verkooporders_zoeken.php">
-        <label for="klantId">Zoek op Klant ID:</label>
-        <input type="text" id="klantId" name="klantId" required>
+        <label for="klantNaam">Zoek op Klant Naam:</label>
+        <input type="text" id="klantNaam" name="klantNaam" required>
         <input type="submit" value="Zoeken">
     </form>
     <br>
@@ -21,14 +21,13 @@
 
     use Bas\classes\Verkooporder;
 
-    // Maak een Verkooporder object
+    
     $verkooporder = new Verkooporder();
 
-    // Toon de tabel
+
     $verkooporder->showTable();
     ?>
     <br>
     <a href="verkooporder_toevoegen.php">Nieuwe Verkooporder Toevoegen</a>
 </body>
 </html>
-
