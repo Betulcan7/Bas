@@ -18,11 +18,14 @@
     $verkooporder = new Verkooporder();
 
     // Haal de verkooporder ID uit de URL
-    $verkOrdId = $_GET['id'] ?? null;
+    $verkOrdId = $_GET['verkOrdId'] ?? null;
 
     if ($verkOrdId) {
         // Haal de verkooporder op basis van ID
         $order = $verkooporder->getVerkooporderById($verkOrdId);
+    } else {
+        echo "Geen verkooporder ID opgegeven.";
+        exit;
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -72,3 +75,7 @@
     <a href="verkooporders_inzien.php">Terug naar Verkooporders</a>
 </body>
 </html>
+
+
+
+

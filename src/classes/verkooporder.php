@@ -28,6 +28,22 @@ class Verkooporder {
         return $orders;
     }
 
+    public function getVerkooporderById($verkOrdId) {
+        $sql = "SELECT verkOrdId, verkOrdDatum, verkOrdBestAantal, verkOrdStatus, Artikel.artOmschrijving 
+                FROM " . $this->table_name . " 
+                JOIN Artikel ON " . $this->table_name . ".artId = Artikel.artId
+                WHERE verkOrdId = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $verkOrdId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        }
+        return null;
+    }
+
     public function showTable() {
         $orders = $this->getVerkooporder();
     
@@ -47,7 +63,8 @@ class Verkooporder {
             echo "<td>" . htmlspecialchars($order['artOmschrijving']) . "</td>";
             echo "<td>
                     <a href='delete.php?verkOrdId=" . $order['verkOrdId'] . "'>Verwijderen</a> | 
-                    <a href='update_status.php?verkOrdId=" . $order['verkOrdId'] . "'>Status Bijwerken</a>
+                    <a href='update_status.php?verkOrdId=" . $order['verkOrdId'] . "'>Status Bijwerken</a> |
+                    <a href='verkooporder_bijwerken.php?verkOrdId=" . $order['verkOrdId'] . "'>Wijzigen</a>
                   </td>";
             echo "</tr>";
         }
@@ -139,6 +156,33 @@ class Verkooporder {
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param('si', $status, $verkOrdId);
         return $stmt->execute();
+    }
+
+    
+
+    public function updateVerkooporder($verkOrdId, $verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus, $artOmschrijving) {
+        $sql = "SELECT artId FROM Artikel WHERE artOmschrijving = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('s', $artOmschrijving);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows == 0) {
+            throw new \Exception("Artikel niet gevonden: " . htmlspecialchars($artOmschrijving));
+        }
+
+        $row = $result->fetch_assoc();
+        $artId = $row['artId'];
+
+        $sql = "UPDATE " . $this->table_name . " SET verkOrdDatum = ?, verkOrdBestAantal = ?, verkOrdStatus = ?, artId = ? WHERE verkOrdId = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('sssii', $verkOrdDatum, $verkOrdBestAantal, $verkOrdStatus, $artId, $verkOrdId);
+
+        if (!$stmt->execute()) {
+            throw new \Exception("Fout bij het bijwerken van verkooporder: " . $stmt->error);
+        }
+
+        return true;
     }
 }
 ?>
